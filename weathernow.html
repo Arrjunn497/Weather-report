@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WeatherNow – Weather for any city, planned around your day</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f6fb;--ink:#12202f;--mute:#56667a;--card:#fff;--line:#d9e2ee;--accent:#e8890c;--deep:#0f2a47;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1522;--ink:#e8eef6;--mute:#9aabc0;--card:#122238;--line:#223650;--deep:#06101c}}
+:root[data-theme="dark"]{--bg:#0b1522;--ink:#e8eef6;--mute:#9aabc0;--card:#122238;--line:#223650;--deep:#06101c}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Bricolage Grotesque',system-ui,-apple-system,Segoe UI,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+/* hero */
+.sky{--s1:#1d3b66;--s2:#6a8fc4;color:#fff;background:linear-gradient(180deg,var(--s1),var(--s2));transition:background .8s;position:relative;overflow:hidden}
+.sky::after{content:"";position:absolute;right:-90px;top:-90px;width:320px;height:320px;border-radius:50%;background:var(--orb,#ffd37a);opacity:var(--orbo,.9);filter:blur(2px);transition:all .8s}
+nav{display:flex;justify-content:space-between;align-items:center;padding:20px 0;position:relative;z-index:2}
+.logo{font-weight:800;font-size:1.25rem;letter-spacing:-.02em;text-decoration:none}
+nav a.l{font-size:.95rem;margin-left:20px;text-decoration:none;opacity:.9}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:36px;padding:28px 0 64px;position:relative;z-index:2;align-items:center}
+h1{font-size:clamp(2.4rem,6vw,4.4rem);line-height:1;letter-spacing:-.035em;font-weight:800;margin:0 0 18px}
+.lede{font-size:1.1rem;max-width:34ch;opacity:.95;margin:0 0 24px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-weight:600;border:1.5px solid rgba(255,255,255,.55);background:rgba(255,255,255,.1);color:#fff;border-radius:999px;padding:8px 16px;cursor:pointer;min-height:44px}
+.chip[aria-pressed="true"]{background:#fff;color:#12202f;border-color:#fff}
+.hint{font-size:.82rem;opacity:.8;margin-top:12px}
+.now{background:rgba(8,18,32,.38);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.22);border-radius:26px;padding:24px}
+.now .city{font-weight:600;opacity:.9}
+.temp{font-size:5.4rem;font-weight:800;line-height:1;letter-spacing:-.05em;margin:4px 0}
+.cond{font-size:1.1rem}
+.sub{opacity:.8;font-size:.92rem}
+.hours{display:flex;align-items:flex-end;gap:6px;height:96px;margin-top:20px}
+.hr{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;font-size:.72rem;height:100%}
+.hr i{display:block;width:100%;max-width:26px;border-radius:8px 8px 3px 3px;background:rgba(255,255,255,.85)}
+.hr span{opacity:.8}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
+.stat{background:rgba(255,255,255,.1);border-radius:14px;padding:10px 8px;text-align:center}
+.stat b{display:block;font-size:1.05rem}
+.stat small{opacity:.8;font-size:.72rem}
+.tip{margin-top:16px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.16);font-size:.92rem}
+.search{display:flex;gap:8px;margin:0 0 14px;max-width:470px}.search input{flex:1;min-width:0;font:inherit;padding:12px 18px;border-radius:999px;border:0;color:#12202f;min-height:46px}.go{font:inherit;font-weight:700;border:0;border-radius:999px;padding:0 20px;background:#ffb85c;color:#12202f;cursor:pointer;min-height:46px}.vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}.row{display:flex;justify-content:space-between;align-items:center;gap:12px}.pic{width:104px;height:104px;flex:none}.warn{border-radius:14px;padding:12px 14px;margin-bottom:14px;font-size:.92rem;color:#fff}.warn b{display:block;font-size:1rem}.l0{background:#1f7a4d}.l1{background:#b86e00}.l2{background:#b3261e}
+.photo{margin-top:16px}.pbtn{display:inline-block;padding:10px 16px;border-radius:999px;border:1.5px dashed rgba(255,255,255,.7);cursor:pointer;font-weight:600;font-size:.92rem}#ph:focus-visible+.pbtn{outline:3px solid #ffb85c;outline-offset:3px}#pv img{display:block;width:100%;max-height:220px;object-fit:cover;border-radius:16px;margin-top:12px}#pv p{font-size:.88rem;opacity:.9;margin:8px 0 0}
+#fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}#pic svg{animation:bob 5s ease-in-out infinite}.spin{transform-box:fill-box;transform-origin:center;animation:spin 20s linear infinite}.drip{animation:drip 1s linear infinite}.drip:nth-of-type(2){animation-delay:.3s}.drip:nth-of-type(3){animation-delay:.6s}.bolt{animation:zap 2.4s steps(1) infinite}
+@keyframes bob{50%{transform:translateY(-6px)}}@keyframes spin{to{transform:rotate(360deg)}}@keyframes drip{0%{transform:translateY(-6px);opacity:0}30%{opacity:1}100%{transform:translateY(8px);opacity:0}}@keyframes zap{0%,60%,100%{opacity:1}65%{opacity:.15}70%{opacity:1}75%{opacity:.2}}
+@media (prefers-reduced-motion:reduce){#pic svg,.spin,.drip,.bolt{animation:none!important}}
+.pbtn{position:relative;overflow:hidden}.pbtn input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:0}.pbtn:focus-within{outline:3px solid #ffb85c;outline-offset:3px}
+/* sections */
+section{padding:72px 0}
+h2{font-size:clamp(1.8rem,4vw,2.7rem);line-height:1.08;letter-spacing:-.03em;margin:0 0 14px;max-width:20ch}
+.intro{color:var(--mute);max-width:56ch;margin:0 0 36px;font-size:1.05rem}
+.why{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border-top:2px solid var(--ink)}
+.why div{padding:16px 14px 0 0;font-weight:600}
+.feat{display:grid;grid-template-columns:repeat(3,1fr);gap:28px 32px}
+.feat h3{margin:0 0 6px;font-size:1.15rem;border-left:4px solid var(--accent);padding-left:12px}
+.feat p{margin:0;color:var(--mute);padding-left:16px}
+.stack{background:var(--deep);color:#e8eef6}
+.stack .intro{color:#9fb2c8}
+.layers{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid #2a4263;border-radius:20px;overflow:hidden}
+.layer{padding:22px;border-right:1px solid #2a4263}
+.layer:last-child{border-right:0}
+.layer h3{margin:0 0 8px;font-size:1.05rem;color:#ffb85c}
+.layer p{margin:0;font-size:.92rem;color:#b9c8da}
+.flow{margin-top:28px;display:flex;flex-wrap:wrap;gap:10px 8px;align-items:center;font-weight:600}
+.flow span{background:#17304f;border-radius:10px;padding:8px 14px}
+.flow em{font-style:normal;color:#ffb85c}
+.tools{margin-top:22px;color:#9fb2c8;font-size:.92rem}
+footer{padding:36px 0 48px;color:var(--mute);font-size:.9rem}
+@media (max-width:820px){
+.hero{grid-template-columns:1fr;padding-bottom:44px}
+.why{grid-template-columns:1fr 1fr}
+.feat{grid-template-columns:1fr}
+.layers{grid-template-columns:1fr 1fr}
+.layer{border-bottom:1px solid #2a4263}
+.temp{font-size:4.4rem}
+nav a.l{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="sky" id="sky"><canvas id="fx" aria-hidden="true"></canvas>
+<div class="wrap">
+<nav><a class="logo" href="#top">WeatherNow</a><div><a class="l" href="#features">Features</a><a class="l" href="#build">How it’s built</a></div></nav>
+<div class="hero" id="top">
+<div>
+<h1>Know the sky before you step outside.</h1>
+<p class="lede">Search any city for live conditions, hourly and daily forecasts, air quality and alerts, then plan your day around them.</p>
+<form id="f" class="search" role="search"><label for="q" class="vh">Search any place</label><input id="q" type="search" placeholder="Search any city or place" autocomplete="off"><button type="submit" class="go">Get weather</button></form>
+<div class="chips" role="group" aria-label="Choose a city" id="chips"></div>
+<p class="hint" id="st" aria-live="polite">Cities above use sample data. Other places are estimated from seasonal norms, not live readings.</p>
+</div>
+<div class="now" aria-live="polite">
+<div id="warn" role="alert"></div>
+<div class="row"><div><div class="city" id="city"></div>
+<div class="temp" id="temp"></div></div><div class="pic" id="pic" aria-hidden="true"></div></div>
+<div class="cond" id="cond"></div>
+<div class="sub" id="range"></div>
+<div class="hours" id="hours" aria-label="Next 8 hours"></div>
+<div class="stats" id="stats"></div>
+<div class="tip" id="tip"></div>
+<div class="photo"><div class="pbtn">Add a photo of the sky<input id="ph" type="file" accept="image/*" aria-label="Add a photo of the sky"></div><div id="pv" aria-live="polite"></div></div>
+</div>
+</div>
+</div>
+</header>
+
+<main>
+<section>
+<div class="wrap">
+<h2>Weather shapes more than your jacket.</h2>
+<p class="intro">Travel, outdoor plans, farming, transport and disaster preparedness all depend on it. Basic forecasts stop short of local, real-time and interactive detail. WeatherNow fills that gap.</p>
+<div class="why"><div>Travel</div><div>Outdoor activities</div><div>Agriculture</div><div>Transportation</div><div>Disaster preparedness</div></div>
+</div>
+</section>
+
+<section id="features" style="padding-top:0">
+<div class="wrap">
+<h2>Everything you need, in one search.</h2>
+<p class="intro">Type a city anywhere in the world and get the full picture.</p>
+<div class="feat">
+<div><h3>Current conditions</h3><p>Temperature, humidity and wind speed, updated in real time.</p></div>
+<div><h3>Hourly and daily forecasts</h3><p>See the next few hours or the week ahead at a glance.</p></div>
+<div><h3>Air quality index</h3><p>Know when the air is good for a run and when it isn’t.</p></div>
+<div><h3>Sunrise and sunset</h3><p>Plan photos, hikes and commutes around daylight.</p></div>
+<div><h3>Alerts and suggestions</h3><p>Weather warnings and location-based ideas for your activities.</p></div>
+<div><h3>Works on every screen</h3><p>A clean, responsive layout for desktop, tablet and mobile.</p></div>
+</div>
+</div>
+</section>
+
+<section class="stack" id="build">
+<div class="wrap">
+<h2>A complete full-stack build.</h2>
+<p class="intro">WeatherNow joins frontend, backend, third-party API, database and deployment into one platform.</p>
+<div class="layers">
+<div class="layer"><h3>Frontend</h3><p>HTML, CSS, JavaScript and a modern framework for an interactive interface.</p></div>
+<div class="layer"><h3>Backend</h3><p>Node.js with Express.js handles API requests and business logic.</p></div>
+<div class="layer"><h3>Weather API</h3><p>Real-time data from a reliable provider, stored or cached as needed.</p></div>
+<div class="layer"><h3>Database</h3><p>MongoDB or MySQL keeps user preferences and search history.</p></div>
+</div>
+<div class="flow" aria-label="Data flow"><span>Browser</span><em>→</em><span>Express API</span><em>→</em><span>Weather API</span><em>→</em><span>Cache and database</span><em>→</em><span>Your forecast</span></div>
+<p class="tools">Built in Visual Studio Code, versioned with Git and hosted on GitHub. Authentication is added where needed.</p>
+</div>
+</section>
+</main>
+<footer><div class="wrap">WeatherNow is a full-stack web application project. The preview above uses sample data.</div></footer>
+
+<script>
+var C=[
+{n:'Mumbai',c:'India',t:29,f:33,hi:31,lo:26,cond:'Monsoon showers',s1:'#2b3a4d',s2:'#6f8296',orb:'#9fb3c8',o:.35,h:[29,28,28,27,27,28,29,29],aqi:'62 Moderate',hum:'86%',w:'18 km/h',sr:'6:41',ss:'18:12',tip:'Carry an umbrella. Rain eases after 6 PM.'},
+{n:'Reykjavík',c:'Iceland',t:6,f:2,hi:8,lo:3,cond:'Overcast and windy',s1:'#2f3e50',s2:'#8d9bab',orb:'#cfd8e3',o:.3,h:[6,6,5,5,4,4,5,5],aqi:'14 Good',hum:'74%',w:'34 km/h',sr:'8:52',ss:'17:20',tip:'Strong gusts near the coast. Wear a windproof layer.'},
+{n:'Dubai',c:'UAE',t:38,f:42,hi:40,lo:29,cond:'Clear and hot',s1:'#d9612a',s2:'#ffc46b',orb:'#fff0b8',o:.95,h:[38,39,40,40,39,37,35,33],aqi:'88 Moderate',hum:'28%',w:'12 km/h',sr:'6:20',ss:'17:34',tip:'Peak heat at 2 PM. Save outdoor plans for the evening.'},
+{n:'Tokyo',c:'Japan',t:19,f:18,hi:21,lo:14,cond:'Partly cloudy',s1:'#2d5d9f',s2:'#9cc3ea',orb:'#ffe9a8',o:.8,h:[19,20,21,21,20,18,17,16],aqi:'35 Good',hum:'58%',w:'9 km/h',sr:'5:58',ss:'16:55',tip:'Pleasant for a walk. Air quality is good all day.'}
+];
+var sky=document.getElementById('sky'),chips=document.getElementById('chips');
+function show(i){draw(C[i]);Array.prototype.forEach.call(chips.children,function(b,k){b.setAttribute('aria-pressed',k===i)})}
+function draw(d){
+var mx=Math.max.apply(null,d.h),mn=Math.min.apply(null,d.h);
+sky.style.setProperty('--s1',d.s1);sky.style.setProperty('--s2',d.s2);
+sky.style.setProperty('--orb',d.orb);sky.style.setProperty('--orbo',d.o);
+document.getElementById('city').textContent=d.n+', '+d.c;
+document.getElementById('temp').innerHTML=d.t+'°<small style="font-size:1.2rem;font-weight:600;opacity:.8"> C · '+F(d.t)+'°F</small>';
+document.getElementById('cond').textContent=d.cond;
+document.getElementById('range').textContent='Feels '+d.f+'° ('+F(d.f)+'°F) · High '+d.hi+'° ('+F(d.hi)+'°F) · Low '+d.lo+'° ('+F(d.lo)+'°F)';
+var hrs='';
+d.h.forEach(function(v,k){var ht=30+(v-mn)/Math.max(1,mx-mn)*50;hrs+='<div class="hr"><span>'+v+'°</span><i style="height:'+ht+'%"></i><span>'+(k===0?'Now':'+'+k+'h')+'</span></div>'});
+document.getElementById('hours').innerHTML=hrs;
+document.getElementById('stats').innerHTML=[['AQI',d.aqi],['Humidity',d.hum],['Wind',d.w],['Sun',d.sr+'–'+d.ss]].map(function(s){return '<div class="stat"><b>'+s[1]+'</b><small>'+s[0]+'</small></div>'}).join('');
+document.getElementById('tip').textContent=d.tip;
+extra(d);
+}
+C.forEach(function(d,i){var b=document.createElement('button');b.className='chip';b.textContent=d.n;b.onclick=function(){show(i)};chips.appendChild(b)});
+function F(c){return Math.round(c*9/5+32)}
+var SK={sun:['#d9612a','#ffc46b','#fff0b8',.95],pcloud:['#2d5d9f','#9cc3ea','#ffe9a8',.8],cloud:['#2f3e50','#8d9bab','#cfd8e3',.3],rain:['#2b3a4d','#6f8296','#9fb3c8',.35],storm:['#1c1f3a','#4a4f7a','#8a8fc8',.25],snow:['#5b7a99','#c9dbea','#ffffff',.5],fog:['#55606b','#aab4bd','#e5eaee',.35]};
+function kindOf(s){s=(s||'').toLowerCase();if(/storm|thunder/.test(s))return'storm';if(/snow|blizzard|sleet/.test(s))return'snow';if(/rain|shower|monsoon|drizzle/.test(s))return'rain';if(/fog|mist|haze|smoke|dust/.test(s))return'fog';if(/partly|few clouds/.test(s))return'pcloud';if(/clear|sunny|hot/.test(s))return'sun';return'cloud'}
+function cl(f,t){return '<g transform="'+(t||'')+'" fill="'+f+'"><ellipse cx="50" cy="62" rx="32" ry="16"/><circle cx="38" cy="52" r="16"/><circle cx="60" cy="46" r="20"/></g>'}
+function rays(cx,cy,a,b){var s='';for(var i=0;i<8;i++){var t=i*Math.PI/4;s+='<line x1="'+(cx+Math.cos(t)*a)+'" y1="'+(cy+Math.sin(t)*a)+'" x2="'+(cx+Math.cos(t)*b)+'" y2="'+(cy+Math.sin(t)*b)+'" stroke="#ffd23f" stroke-width="5" stroke-linecap="round"/>'}return s}
+function drops(c){var s='';[34,50,66].forEach(function(x){s+='<line class="drip" x1="'+x+'" y1="82" x2="'+(x-6)+'" y2="96" stroke="'+c+'" stroke-width="4" stroke-linecap="round"/>'});return s}
+function pic(k){var g='<svg viewBox="0 0 100 100" width="104" height="104">';
+if(k==='sun')g+='<circle cx="50" cy="50" r="20" fill="#ffd23f"/>'+'<g class="spin">'+rays(50,50,28,40)+'</g>';
+else if(k==='pcloud')g+='<circle cx="36" cy="36" r="15" fill="#ffd23f"/>'+'<g class="spin">'+rays(36,36,21,30)+'</g>'+cl('#f2f6fa','translate(6,8)');
+else if(k==='rain')g+=cl('#c5d0dc','translate(0,-6)')+drops('#5fb4ff');
+else if(k==='storm')g+=cl('#8d97ab','translate(0,-8)')+'<polygon class="bolt" points="54,70 40,88 51,88 46,100 64,80 53,80" fill="#ffd23f"/>';
+else if(k==='snow')g+=cl('#e3ebf3','translate(0,-6)')+'<circle cx="34" cy="88" r="4" fill="#fff"/><circle cx="50" cy="94" r="4" fill="#fff"/><circle cx="66" cy="88" r="4" fill="#fff"/>';
+else if(k==='fog')g+=cl('#d3dae2','translate(0,-10)')+'<line x1="22" y1="80" x2="78" y2="80" stroke="#e5eaee" stroke-width="5" stroke-linecap="round"/><line x1="30" y1="92" x2="84" y2="92" stroke="#e5eaee" stroke-width="5" stroke-linecap="round"/>';
+else g+=cl('#eef3f8','translate(0,0)');
+return g+'</svg>'}
+function assess(d){var k=kindOf(d.cond),w=parseInt(d.w)||0,a=parseInt(d.aqi)||0,r=[],lv=0;function up(l,m){if(l>lv)lv=l;r.push(m)}
+if(k==='storm')up(2,'thunderstorm risk');
+if(w>=60)up(2,'dangerous winds');else if(w>=40)up(1,'strong winds');
+if(d.f>=46||d.t>=43)up(2,'life-threatening heat');else if(d.f>=38)up(1,'extreme heat');
+if(d.f<=-20)up(2,'life-threatening cold');else if(d.f<=-8)up(1,'severe cold');
+if(a>=200)up(2,'hazardous air quality');else if(a>=150)up(1,'unhealthy air quality');
+if(k==='snow')up(1,'snow and ice');if(k==='rain')up(1,'heavy rain');
+return{lv:lv,r:r.join(', ')}}
+function extra(d){var k=kindOf(d.cond),a=assess(d),T=['Clear to go outside','Caution before you go out','Warning: unsafe to go outside'],M=['Conditions are comfortable for heading out.','Expect '+a.r+'. Take care and plan for it.','Expect '+a.r+'. Stay indoors and avoid going out unless it is essential.'];
+var w=document.getElementById('warn');w.className='warn l'+a.lv;w.innerHTML='<b></b><span></span>';w.firstChild.textContent=T[a.lv];w.lastChild.textContent=M[a.lv];
+document.getElementById('pic').innerHTML=pic(k);cur=d.n;showPhoto(d.n);setFx(k,parseInt(d.w)||0)}
+function addChip(i){var b=document.createElement('button');b.className='chip';b.textContent=C[i].n;b.onclick=function(){show(i)};chips.appendChild(b)}
+var st=document.getElementById('st');
+document.getElementById('f').onsubmit=function(e){e.preventDefault();go(document.getElementById('q').value.trim())};
+async function go(name){if(!name)return;
+for(var i=0;i<C.length;i++)if(C[i].n.toLowerCase()===name.toLowerCase()){show(i);st.textContent='Showing sample data for '+C[i].n+'.';return}
+st.textContent='Looking up '+name+'…';
+try{var s=window.claude?await claude.use('sample'):null;
+if(!s){st.textContent='Searching other places isn’t available here. Try one of the cities above.';return}
+var d=await s.json('Today is October 29, 2026. You cannot see live data, so estimate typical current weather for the place "'+name+'" at this time of year. If it is not a real place return {"error":true}. Return only JSON: {"n":place name,"c":country,"t":temp C,"f":feels-like C,"hi":high C,"lo":low C (integers),"cond":short condition like Light rain or Clear,"h":8 hourly temps C from now,"aqi":"NN Label","hum":"NN%","w":"NN km/h","sr":"H:MM","ss":"H:MM","tip":one short sentence}');
+if(!d||d.error||typeof d.t!=='number'||!d.h){st.textContent='Couldn’t find “'+name+'”. Check the spelling or add the country.';return}
+var sk=SK[kindOf(d.cond)];d.s1=sk[0];d.s2=sk[1];d.orb=sk[2];d.o=sk[3];C.push(d);addChip(C.length-1);show(C.length-1);
+st.textContent='Estimated from typical seasonal conditions, not a live reading.'}
+catch(err){st.textContent='Couldn’t get weather for “'+name+'” right now. Try again in a moment.'}}
+var P={},cur='';
+function showPhoto(n){var pv=document.getElementById('pv');pv.innerHTML='';var p=P[n];if(!p)return;var im=document.createElement('img');im.src=p.url;im.alt='Your photo of the sky in '+n;pv.appendChild(im);var c=document.createElement('p');c.textContent=p.note;pv.appendChild(c)}
+document.getElementById('ph').onchange=function(e){var f=e.target.files[0];e.target.value='';if(!f)return;var n=cur;
+if(!/^image\//.test(f.type)){st.textContent='Choose an image file (JPG, PNG or WebP).';return}
+var src=URL.createObjectURL(f),im=new Image();
+im.onerror=function(){st.textContent='That image couldn’t be opened. Try another photo.'};
+im.onload=function(){var r=Math.min(1,1024/Math.max(im.width,im.height)),cv=document.createElement('canvas');cv.width=Math.round(im.width*r);cv.height=Math.round(im.height*r);cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);URL.revokeObjectURL(src);
+cv.toBlob(async function(b){if(!b)return;P[n]={url:URL.createObjectURL(b),note:'Your photo, kept on this device only.'};if(cur===n)showPhoto(n);
+try{var s=window.claude?await claude.use('sample'):null,lim=s?await s.limits():null;
+if(lim&&lim.images){P[n].note='Reading your photo…';if(cur===n)showPhoto(n);
+var t=await s('In two short sentences, describe the sky and weather visible in this photo, and say whether it looks safe to go outside. Describe only what you can see.',{images:[b]});
+P[n].note='Claude’s read of your photo: '+t.text}else{P[n].note='Your photo, kept on this device only.'}}
+catch(x){P[n].note='Your photo, kept on this device only.'}
+if(cur===n)showPhoto(n)},'image/jpeg',.82)};
+im.src=src};
+var cv=document.getElementById('fx'),cx=cv.getContext('2d'),ps=[],ws=[],mode='',wind=0,fl=0,bolt=[],raf=0,rm=window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches;
+function W(){return cv.clientWidth}function H(){return cv.clientHeight}
+function sz(){var d=window.devicePixelRatio||1;cv.width=W()*d;cv.height=H()*d;cx.setTransform(d,0,0,d,0,0)}
+function mk(){var w=W(),h=H(),n={rain:130,storm:190,snow:90,fog:7,cloud:6,pcloud:4}[mode]||0;ps=[];for(var i=0;i<n;i++)ps.push({x:Math.random()*w,y:Math.random()*(/cloud|fog/.test(mode)?h*.6:h),v:Math.random(),r:Math.random()});
+ws=[];if(wind>=30&&!/rain|storm|snow/.test(mode))for(var j=0;j<12;j++)ws.push({x:Math.random()*w,y:Math.random()*h,v:Math.random()})}
+function blob(x,y,a,b){cx.beginPath();cx.ellipse(x,y,a,b,0,0,6.3);cx.fill()}
+function tick(t){var w=W(),h=H(),m=mode,dr=wind*.1;cx.clearRect(0,0,w,h);
+if(m==='sun'||m==='pcloud'){var g=cx.createRadialGradient(w-20,10,10,w-20,10,300+30*Math.sin(t/1200));g.addColorStop(0,'rgba(255,240,190,.5)');g.addColorStop(1,'rgba(255,240,190,0)');cx.fillStyle=g;cx.fillRect(0,0,w,h)}
+if(m==='rain'||m==='storm'){cx.strokeStyle='rgba(205,228,255,.55)';cx.lineWidth=1.3;cx.beginPath();ps.forEach(function(p){var L=10+p.v*12,sp=11+p.v*9,dx=L*(dr+2)/sp;cx.moveTo(p.x+dx,p.y-L);cx.lineTo(p.x,p.y);p.y+=sp;p.x-=dr+2;if(p.y>h+L){p.y=-20;p.x=Math.random()*(w+120)}if(p.x<-30)p.x=w+10});cx.stroke()}
+else if(m==='snow'){cx.fillStyle='rgba(255,255,255,.85)';ps.forEach(function(p){cx.beginPath();cx.arc(p.x+Math.sin(t/900+p.v*9)*14,p.y,1.5+p.r*3,0,6.3);cx.fill();p.y+=.6+p.v*1.3;p.x+=dr*.1;if(p.y>h){p.y=-6;p.x=Math.random()*w}})}
+else if(m==='fog'||m==='cloud'||m==='pcloud'){cx.fillStyle='rgba(255,255,255,'+(m==='fog'?.09:.14)+')';ps.forEach(function(p){var s=.6+p.r;if(m==='fog')blob(p.x,p.y,280*s,46*s);else{blob(p.x,p.y,90*s,28*s);blob(p.x-40*s,p.y+8*s,60*s,22*s);blob(p.x+45*s,p.y+8*s,65*s,24*s)}p.x+=.15+p.v*.35+wind*.01;if(p.x>w+300)p.x=-300})}
+if(ws.length){cx.strokeStyle='rgba(255,255,255,.3)';cx.lineWidth=1.5;cx.beginPath();ws.forEach(function(p){var L=50+p.v*70;cx.moveTo(p.x,p.y);cx.lineTo(p.x+L,p.y);p.x+=5+wind*.12;if(p.x>w+120){p.x=-120;p.y=Math.random()*h}});cx.stroke()}
+if(m==='storm'){if(fl<.02&&Math.random()<.007){fl=1;var x=w*(.2+Math.random()*.6),y=0;bolt=[[x,0]];while(y<h*.6){y+=20+Math.random()*30;x+=(Math.random()-.5)*50;bolt.push([x,y])}}
+if(fl>.02){cx.fillStyle='rgba(235,240,255,'+fl*.35+')';cx.fillRect(0,0,w,h);if(fl>.4){cx.strokeStyle='rgba(255,255,255,'+fl+')';cx.lineWidth=2.5;cx.beginPath();bolt.forEach(function(q,i){i?cx.lineTo(q[0],q[1]):cx.moveTo(q[0],q[1])});cx.stroke()}fl*=.9}}
+raf=requestAnimationFrame(tick)}
+function setFx(k,w){mode=k;wind=w;fl=0;cancelAnimationFrame(raf);sz();mk();if(rm)cx.clearRect(0,0,W(),H());else raf=requestAnimationFrame(tick)}
+window.addEventListener('resize',function(){if(mode){sz();mk()}});
+function dataBlob(u){var a=u.split(','),bs=atob(a[1]),n=bs.length,u8=new Uint8Array(n);while(n--)u8[n]=bs.charCodeAt(n);return new Blob([u8],{type:'image/jpeg'})}
+document.getElementById('ph').onchange=function(e){var f=e.target.files&&e.target.files[0];if(!f)return;var n=cur,pv=document.getElementById('pv');
+function msg(t){pv.innerHTML='';var c=document.createElement('p');c.textContent=t;pv.appendChild(c)}
+if(f.type&&!/^image\//.test(f.type)){msg('Choose an image file (JPG, PNG or WebP).');return}
+msg('Loading your photo…');
+var fr=new FileReader();
+fr.onerror=function(){msg('Couldn’t read that file. Try another photo.')};
+fr.onload=function(){var im=new Image();
+im.onerror=function(){msg('That image format isn’t supported. Try a JPG or PNG.')};
+im.onload=async function(){var r=Math.min(1,1024/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*r);c.height=Math.round(im.height*r);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+var u=c.toDataURL('image/jpeg',.82);P[n]={url:u,note:'Your photo, kept on this device only.'};if(cur===n)showPhoto(n);
+try{var s=window.claude?await claude.use('sample'):null,lim=s?await s.limits():null;
+if(lim&&lim.images){P[n].note='Reading your photo…';if(cur===n)showPhoto(n);var t=await s('In two short sentences, describe the sky and weather visible in this photo, and say whether it looks safe to go outside. Describe only what you can see.',{images:[dataBlob(u)]});P[n].note='Claude’s read of your photo: '+t.text}}
+catch(x){P[n].note='Your photo, kept on this device only.'}
+if(cur===n)showPhoto(n)};
+im.src=fr.result};
+fr.readAsDataURL(f);e.target.value=''};
+(function(){var ph=document.getElementById('ph'),card=document.querySelector('.now');
+function give(fl){if(fl&&fl.length){try{ph.files=fl}catch(x){}ph.onchange({target:ph})}}
+card.addEventListener('dragover',function(e){e.preventDefault()});
+card.addEventListener('drop',function(e){e.preventDefault();give(e.dataTransfer&&e.dataTransfer.files)});
+document.addEventListener('paste',function(e){var fl=e.clipboardData&&e.clipboardData.files;if(fl&&fl.length)give(fl)})})();
+show(0);
+</script>
+</body>
+</html>
